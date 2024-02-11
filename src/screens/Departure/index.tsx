@@ -1,11 +1,6 @@
 import { useRef, useState } from 'react'
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  TextInput,
-} from 'react-native'
+import { Alert, TextInput } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useNavigation } from '@react-navigation/native'
 
 import { useUser } from '@realm/react'
@@ -72,48 +67,43 @@ export function Departure() {
     }
   }
 
-  const keyboardAvoidingViewBehavior =
-    Platform.OS === 'android' ? 'height' : 'position'
-
   return (
     <Container>
       <Header title="Departure" />
 
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={keyboardAvoidingViewBehavior}
+      <KeyboardAwareScrollView
+        showsVerticalScrollIndicator={false}
+        extraHeight={100}
       >
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <Content>
-            <LicensePlateInput
-              ref={licensePlateRef}
-              label="Vehicle Plate"
-              placeholder="BRA1234"
-              onSubmitEditing={() => descriptionRef.current?.focus()}
-              returnKeyType="next"
-              onChangeText={setLicensePlate}
-              value={licensePlate}
-            />
+        <Content>
+          <LicensePlateInput
+            ref={licensePlateRef}
+            label="Vehicle Plate"
+            placeholder="BRA1234"
+            onSubmitEditing={() => descriptionRef.current?.focus()}
+            returnKeyType="next"
+            onChangeText={setLicensePlate}
+            value={licensePlate}
+          />
 
-            <TextAreaInput
-              ref={descriptionRef}
-              label="Goal"
-              placeholder="I'll use this vehicle to..."
-              onSubmitEditing={handleDepartureRegister}
-              returnKeyType="send"
-              blurOnSubmit
-              onChangeText={setDescription}
-              value={description}
-            />
+          <TextAreaInput
+            ref={descriptionRef}
+            label="Goal"
+            placeholder="I'll use this vehicle to..."
+            onSubmitEditing={handleDepartureRegister}
+            returnKeyType="send"
+            blurOnSubmit
+            onChangeText={setDescription}
+            value={description}
+          />
 
-            <Button
-              title="Register Departure"
-              onPress={handleDepartureRegister}
-              isLoading={isRegistering}
-            />
-          </Content>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          <Button
+            title="Register Departure"
+            onPress={handleDepartureRegister}
+            isLoading={isRegistering}
+          />
+        </Content>
+      </KeyboardAwareScrollView>
     </Container>
   )
 }
