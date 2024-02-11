@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 
@@ -17,7 +18,11 @@ export function Home() {
   const history = useQuery(History)
 
   function handleRegisterMovement() {
-    navigate('departure')
+    if (vehicleInUse?._id) {
+      return navigate('arrival', { id: vehicleInUse?._id.toString() })
+    } else {
+      navigate('departure')
+    }
   }
 
   function fetchVehicle() {
