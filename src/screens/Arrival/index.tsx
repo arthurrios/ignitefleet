@@ -81,14 +81,13 @@ export function Arrival() {
         <Label>Goal</Label>
 
         <Description>{history?.description}</Description>
-
-        {history?.status === 'departure' && (
-          <Footer>
-            <ButtonIcon icon={X} onPress={handleRemoveVehicleUsage} />
-            <Button title="Register Arrival" onPress={handleArrivalRegister} />
-          </Footer>
-        )}
       </Content>
+      {history?.status === 'departure' && (
+        <Footer>
+          <ButtonIcon icon={X} onPress={handleRemoveVehicleUsage} />
+          <Button title="Register Arrival" onPress={handleArrivalRegister} />
+        </Footer>
+      )}
     </Container>
   )
 }
