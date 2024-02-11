@@ -10,6 +10,7 @@ import { HomeHeader } from '@components/HomeHeader'
 import { CarStatus } from '@components/CarStatus'
 
 import { Container, Content } from './styles'
+import { HistoryCard } from '@components/HistoryCard'
 
 export function Home() {
   const [vehicleInUse, setVehicleInUse] = useState<History | null>(null)
@@ -65,6 +66,10 @@ export function Home() {
         <CarStatus
           onPress={handleRegisterMovement}
           licencePlate={vehicleInUse?.license_plate}
+        />
+
+        <HistoryCard
+          data={{ created: '20/04', licensePlate: 'XXX1212', isSync: false }}
         />
       </Content>
     </Container>
