@@ -38,10 +38,7 @@ export function Home() {
   }
 
   function fetchHistory() {
-    const response = history.filtered(
-      `status = 'arrival' SORT(created_at DESC)`,
-    )
-    console.log(response)
+    history.filtered(`status = 'arrival' SORT(created_at DESC)`)
   }
 
   useEffect(() => {
