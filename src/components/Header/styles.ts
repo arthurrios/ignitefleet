@@ -6,7 +6,7 @@ export const Container = styled.View`
   flex-direction: row;
   justify-content: space-between;
 
-  background-color: ${({ theme }) => theme.COLORS.GRAY_700};
+  background-color: ${({ theme }) => theme.COLORS.GRAY_800};
   z-index: 1;
 `
 
