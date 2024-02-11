@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import { Alert } from 'react-native'
+import { Alert, FlatList } from 'react-native'
+import dayjs from 'dayjs'
 
 import { useQuery, useRealm } from '@libs/realm'
 import { History } from '@libs/realm/schemas/History'
@@ -9,11 +10,12 @@ import { History } from '@libs/realm/schemas/History'
 import { HomeHeader } from '@components/HomeHeader'
 import { CarStatus } from '@components/CarStatus'
 
-import { Container, Content } from './styles'
-import { HistoryCard } from '@components/HistoryCard'
+import { Container, Content, Label, Title } from './styles'
+import { HistoryCard, HistoryCardProps } from '@components/HistoryCard'
 
 export function Home() {
   const [vehicleInUse, setVehicleInUse] = useState<History | null>(null)
+  const [vehicleHistory, setVehicleHistory] = useState<HistoryCardProps[]>([])
 
   const { navigate } = useNavigation()
   const history = useQuery(History)
@@ -33,12 +35,32 @@ export function Home() {
       setVehicleInUse(vehicle)
     } catch (error) {
       console.log(error)
-      Alert.alert('Vehicle in use', 'Not possible to load vehicle in use.')
+      Alert.alert('Vehicle in use', 'Failed to load vehicle in use.')
     }
   }
 
   function fetchHistory() {
-    history.filtered(`status = 'arrival' SORT(created_at DESC)`)
+    try {
+      const response = history.filtered(
+        `status = 'arrival' SORT(created_at DESC)`,
+      )
+
+      const formattedHistory = response.map((item) => {
+        return {
+          id: item._id!.toString(),
+          licensePlate: item.license_plate,
+          isSync: false,
+          created: dayjs(item.created_at).format(
+            '[Departured] MM/DD/YYYY [at] hh:mm A',
+          ),
+        }
+      })
+
+      setVehicleHistory(formattedHistory)
+    } catch (error) {
+      console.log(error)
+      Alert.alert('History', 'Failed to load history.')
+    }
   }
 
   useEffect(() => {
@@ -65,8 +87,14 @@ export function Home() {
           licencePlate={vehicleInUse?.license_plate}
         />
 
-        <HistoryCard
-          data={{ created: '20/04', licensePlate: 'XXX1212', isSync: false }}
+        <Title>History</Title>
+        <FlatList
+          data={vehicleHistory}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <HistoryCard data={item} />}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          ListEmptyComponent={<Label>No registry of vehicles used</Label>}
         />
       </Content>
     </Container>

@@ -5,6 +5,7 @@ import { Container, Departure, Info, LicensePlate } from './styles'
 import { useTheme } from 'styled-components/native'
 
 export type HistoryCardProps = {
+  id: string
   licensePlate: string
   created: string
   isSync: boolean
