@@ -36,6 +36,13 @@ export function Home() {
     }
   }
 
+  function fetchHistory() {
+    const response = history.filtered(
+      `status = 'arrival' SORT(created_at DESC)`,
+    )
+    console.log(response)
+  }
+
   useEffect(() => {
     fetchVehicleInUse()
   }, [])
@@ -45,6 +52,10 @@ export function Home() {
 
     return () => realm.removeListener('change', fetchVehicleInUse)
   }, [])
+
+  useEffect(() => {
+    fetchHistory()
+  }, [history])
 
   return (
     <Container>
