@@ -31,6 +31,8 @@ export function Arrival() {
   const realm = useRealm()
   const { goBack } = useNavigation()
 
+  const title = history?.status === 'departure' ? 'Arrival' : 'Details'
+
   function handleRemoveVehicleUsage() {
     Alert.alert('Cancel', 'Cancel vehicle usage?', [
       { text: 'No', style: 'cancel' },
@@ -70,7 +72,7 @@ export function Arrival() {
 
   return (
     <Container>
-      <Header title="Arrival" />
+      <Header title={title} />
       <Content>
         <Label>Vehicle Plate</Label>
 
@@ -80,10 +82,12 @@ export function Arrival() {
 
         <Description>{history?.description}</Description>
 
-        <Footer>
-          <ButtonIcon icon={X} onPress={handleRemoveVehicleUsage} />
-          <Button title="Register Arrival" onPress={handleArrivalRegister} />
-        </Footer>
+        {history?.status === 'departure' && (
+          <Footer>
+            <ButtonIcon icon={X} onPress={handleRemoveVehicleUsage} />
+            <Button title="Register Arrival" onPress={handleArrivalRegister} />
+          </Footer>
+        )}
       </Content>
     </Container>
   )

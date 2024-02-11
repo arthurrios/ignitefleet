@@ -63,6 +63,10 @@ export function Home() {
     }
   }
 
+  function handleHistoryDetails(id: string) {
+    navigate('arrival', { id })
+  }
+
   useEffect(() => {
     fetchVehicleInUse()
   }, [])
@@ -91,7 +95,12 @@ export function Home() {
         <FlatList
           data={vehicleHistory}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <HistoryCard data={item} />}
+          renderItem={({ item }) => (
+            <HistoryCard
+              data={item}
+              onPress={() => handleHistoryDetails(item.id)}
+            />
+          )}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
           ListEmptyComponent={<Label>No registry of vehicles used</Label>}
