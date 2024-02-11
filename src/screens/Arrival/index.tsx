@@ -46,6 +46,28 @@ export function Arrival() {
     goBack()
   }
 
+  function handleArrivalRegister() {
+    try {
+      if (!history) {
+        return Alert.alert(
+          'Error',
+          `Failed fetching data to register vehicle's arrival.`,
+        )
+      }
+
+      realm.write(() => {
+        history.status = 'arrival'
+        history.updated_at = new Date()
+      })
+
+      Alert.alert('Arrival', 'Arrival registered successfully.')
+      goBack()
+    } catch (error) {
+      console.log(error)
+      Alert.alert('Error', `Failed to register vehicle's arrival.`)
+    }
+  }
+
   return (
     <Container>
       <Header title="Arrival" />
@@ -60,7 +82,7 @@ export function Arrival() {
 
         <Footer>
           <ButtonIcon icon={X} onPress={handleRemoveVehicleUsage} />
-          <Button title="Register Arrival" />
+          <Button title="Register Arrival" onPress={handleArrivalRegister} />
         </Footer>
       </Content>
     </Container>
