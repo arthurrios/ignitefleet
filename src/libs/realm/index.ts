@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Realm from 'realm'
 import { createRealmContext } from '@realm/react'
 import { History } from './schemas/History'

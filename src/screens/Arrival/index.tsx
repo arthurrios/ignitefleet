@@ -1,5 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { Alert } from 'react-native'
+import { useEffect, useState } from 'react'
 
 import { BSON } from 'realm'
 import { useObject, useRealm } from '@libs/realm'
@@ -12,18 +14,22 @@ import {
   Footer,
   Label,
   LicensePlate,
+  SyncMessage,
 } from './styles'
 import { X } from 'phosphor-react-native'
 
 import { Header } from '@components/Header'
 import { Button } from '@components/Button'
 import { ButtonIcon } from '@components/ButtonIcon'
+import { getLastSyncTimestamp } from '@libs/storage/syncStorage'
 
 type RouteParamsProps = {
   id: string
 }
 
 export function Arrival() {
+  const [dataNotSynced, setDataNotSynced] = useState(false)
+
   const route = useRoute()
   const { id } = route.params as RouteParamsProps
 
@@ -70,6 +76,12 @@ export function Arrival() {
     }
   }
 
+  useEffect(() => {
+    const lastSync = getLastSyncTimestamp()
+
+    setDataNotSynced(history!.updated_at.getTime() > lastSync)
+  }, [])
+
   return (
     <Container>
       <Header title={title} />
@@ -82,6 +94,13 @@ export function Arrival() {
 
         <Description>{history?.description}</Description>
       </Content>
+
+      {dataNotSynced && (
+        <SyncMessage>
+          {history?.status === 'departure' ? 'Departure' : 'Arrival'} sync
+          pending.
+        </SyncMessage>
+      )}
       {history?.status === 'departure' && (
         <Footer>
           <ButtonIcon icon={X} onPress={handleRemoveVehicleUsage} />
