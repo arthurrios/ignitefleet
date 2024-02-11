@@ -1,7 +1,8 @@
-import { useRoute } from '@react-navigation/native'
-import { BSON } from 'realm'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { Alert } from 'react-native'
 
-import { useObject } from '@libs/realm'
+import { BSON } from 'realm'
+import { useObject, useRealm } from '@libs/realm'
 import { History } from '@libs/realm/schemas/History'
 
 import {
@@ -27,6 +28,23 @@ export function Arrival() {
   const { id } = route.params as RouteParamsProps
 
   const history = useObject(History, new BSON.UUID(id))
+  const realm = useRealm()
+  const { goBack } = useNavigation()
+
+  function handleRemoveVehicleUsage() {
+    Alert.alert('Cancel', 'Cancel vehicle usage?', [
+      { text: 'No', style: 'cancel' },
+      { text: 'Yes', onPress: () => removeVehicleUsage() },
+    ])
+  }
+
+  function removeVehicleUsage() {
+    realm.write(() => {
+      realm.delete(history)
+    })
+
+    goBack()
+  }
 
   return (
     <Container>
@@ -41,7 +59,7 @@ export function Arrival() {
         <Description>{history?.description}</Description>
 
         <Footer>
-          <ButtonIcon icon={X} />
+          <ButtonIcon icon={X} onPress={handleRemoveVehicleUsage} />
           <Button title="Register Arrival" />
         </Footer>
       </Content>
