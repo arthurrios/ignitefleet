@@ -12,7 +12,7 @@ export function HomeHeader() {
   const app = useApp()
   const insets = useSafeAreaInsets()
 
-  const paddingTop = insets.top
+  const paddingTop = insets.top + 16
 
   function handleLogOut() {
     app.currentUser?.logOut()
