@@ -6,6 +6,7 @@ import dayjs from 'dayjs'
 
 import { useQuery, useRealm } from '@libs/realm'
 import { History } from '@libs/realm/schemas/History'
+import { useUser } from '@realm/react'
 
 import { HomeHeader } from '@components/HomeHeader'
 import { CarStatus } from '@components/CarStatus'
@@ -19,6 +20,7 @@ export function Home() {
 
   const { navigate } = useNavigation()
   const history = useQuery(History)
+  const user = useUser()
   const realm = useRealm()
 
   function handleRegisterMovement() {
@@ -83,6 +85,16 @@ export function Home() {
   useEffect(() => {
     fetchHistory()
   }, [history])
+
+  useEffect(() => {
+    realm.subscriptions.update((mutableSubs, realm) => {
+      const historyByUserQuery = realm
+        .objects('History')
+        .filtered(`user_id = '${user!.id}'`)
+
+      mutableSubs.add(historyByUserQuery, { name: 'history_by_user' })
+    })
+  }, [realm])
 
   return (
     <Container>
