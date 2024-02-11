@@ -25,7 +25,7 @@ export class History extends Realm.Object<History> {
       description,
       license_plate,
       status: 'departure',
-      create_at: new Date(),
+      created_at: new Date(),
       updated_at: new Date(),
     }
   }
