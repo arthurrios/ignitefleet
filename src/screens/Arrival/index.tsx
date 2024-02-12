@@ -7,6 +7,7 @@ import { BSON } from 'realm'
 import { useObject, useRealm } from '@libs/realm'
 import { History } from '@libs/realm/schemas/History'
 import { LatLng } from 'react-native-maps'
+import dayjs from 'dayjs'
 
 import {
   Container,
@@ -27,6 +28,10 @@ import { getLastSyncTimestamp } from '@libs/storage/syncStorage'
 import { stopLocationTask } from '@tasks/backgroundLocationTask'
 import { getStorageLocations } from '@libs/storage/locationStorage'
 import { Map } from '@components/Map'
+import { Locations } from '@components/Locations'
+import { getAddressLocation } from '@utils/getAddressLocation'
+import { LocationInfoProps } from '@components/LocationInfo'
+import { Loading } from '@components/Loading'
 
 type RouteParamsProps = {
   id: string
@@ -35,6 +40,11 @@ type RouteParamsProps = {
 export function Arrival() {
   const [dataNotSynced, setDataNotSynced] = useState(false)
   const [coordinates, setCoordinates] = useState<LatLng[]>([])
+  const [departure, setDeparture] = useState<LocationInfoProps>(
+    {} as LocationInfoProps,
+  )
+  const [arrival, setArrival] = useState<LocationInfoProps | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   const route = useRoute()
   const { id } = route.params as RouteParamsProps
@@ -88,7 +98,7 @@ export function Arrival() {
     }
   }
 
-  function getLocationsInfo() {
+  async function getLocationsInfo() {
     if (!history) {
       return
     }
@@ -109,11 +119,40 @@ export function Arrival() {
       })
       setCoordinates(coords ?? [])
     }
+
+    if (history?.coords[0]) {
+      const departureStreetName = await getAddressLocation(history?.coords[0])
+
+      setDeparture({
+        label: `Departured from ${departureStreetName ?? ''}`,
+        description: dayjs(new Date(history?.coords[0].timestamp)).format(
+          'MM/DD/YYYY [at] hh:mm A',
+        ),
+      })
+    }
+
+    if (history?.status === 'arrival') {
+      const lastLocation = history.coords[history.coords.length - 1]
+      const arrivalStreetName = await getAddressLocation(lastLocation)
+
+      setArrival({
+        label: `Departured from ${arrivalStreetName ?? ''}`,
+        description: dayjs(new Date(lastLocation.timestamp)).format(
+          'MM/DD/YYYY [at] hh:mm A',
+        ),
+      })
+    }
+
+    setIsLoading(false)
   }
 
   useEffect(() => {
     getLocationsInfo()
   }, [history])
+
+  if (isLoading) {
+    return <Loading />
+  }
 
   return (
     <Container>
@@ -122,6 +161,8 @@ export function Arrival() {
       {coordinates.length > 0 && <Map coordinates={coordinates} />}
 
       <Content>
+        <Locations departure={departure} arrival={arrival} />
+
         <Label>Vehicle Plate</Label>
 
         <LicensePlate>{history?.license_plate}</LicensePlate>
