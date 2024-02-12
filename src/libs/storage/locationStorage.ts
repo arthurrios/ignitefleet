@@ -12,7 +12,9 @@ type LocationProps = {
 
 export function getStorageLocations() {
   const storagedLocations = storage.getString(STORAGE_KEY)
-  const response = storage ? JSON.parse(String(storagedLocations)) : []
+  const response = storagedLocations
+    ? JSON.parse(String(storagedLocations))
+    : []
 
   return response
 }

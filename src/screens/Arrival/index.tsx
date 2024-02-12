@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { BSON } from 'realm'
 import { useObject, useRealm } from '@libs/realm'
 import { History } from '@libs/realm/schemas/History'
+import { LatLng } from 'react-native-maps'
 
 import {
   Container,
@@ -21,8 +22,11 @@ import { X } from 'phosphor-react-native'
 import { Header } from '@components/Header'
 import { Button } from '@components/Button'
 import { ButtonIcon } from '@components/ButtonIcon'
+
 import { getLastSyncTimestamp } from '@libs/storage/syncStorage'
 import { stopLocationTask } from '@tasks/backgroundLocationTask'
+import { getStorageLocations } from '@libs/storage/locationStorage'
+import { Map } from '@components/Map'
 
 type RouteParamsProps = {
   id: string
@@ -30,6 +34,7 @@ type RouteParamsProps = {
 
 export function Arrival() {
   const [dataNotSynced, setDataNotSynced] = useState(false)
+  const [coordinates, setCoordinates] = useState<LatLng[]>([])
 
   const route = useRoute()
   const { id } = route.params as RouteParamsProps
@@ -47,11 +52,12 @@ export function Arrival() {
     ])
   }
 
-  function removeVehicleUsage() {
+  async function removeVehicleUsage() {
     realm.write(() => {
       realm.delete(history)
     })
 
+    await stopLocationTask()
     goBack()
   }
 
@@ -64,12 +70,12 @@ export function Arrival() {
         )
       }
 
-      await stopLocationTask()
-
       realm.write(() => {
         history.status = 'arrival'
         history.updated_at = new Date()
       })
+
+      await stopLocationTask()
 
       Alert.alert('Arrival', 'Arrival registered successfully.')
       goBack()
@@ -79,15 +85,30 @@ export function Arrival() {
     }
   }
 
-  useEffect(() => {
-    const lastSync = getLastSyncTimestamp()
+  function getLocationsInfo() {
+    if (!history) {
+      return
+    }
 
-    setDataNotSynced(history!.updated_at.getTime() > lastSync)
-  }, [])
+    const lastSync = getLastSyncTimestamp()
+    const updatedAt = history!.updated_at.getTime()
+
+    setDataNotSynced(updatedAt > lastSync)
+
+    const locationsStorage = getStorageLocations()
+    setCoordinates(locationsStorage)
+  }
+
+  useEffect(() => {
+    getLocationsInfo()
+  }, [history])
 
   return (
     <Container>
       <Header title={title} />
+
+      {coordinates.length > 0 && <Map coordinates={coordinates} />}
+
       <Content>
         <Label>Vehicle Plate</Label>
 

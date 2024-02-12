@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { saveStorageLocation } from '@libs/storage/locationStorage'
+import {
+  removeStorageLocations,
+  saveStorageLocation,
+} from '@libs/storage/locationStorage'
 import {
   Accuracy,
   hasStartedLocationUpdatesAsync,
@@ -59,6 +62,7 @@ export async function stopLocationTask() {
 
     if (hasStarted) {
       await stopLocationUpdatesAsync(BACKGROUND_TASK_NAME)
+      removeStorageLocations()
     }
   } catch (error) {
     console.log(error)
