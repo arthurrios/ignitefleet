@@ -70,9 +70,12 @@ export function Arrival() {
         )
       }
 
+      const locations = getStorageLocations()
+
       realm.write(() => {
         history.status = 'arrival'
         history.updated_at = new Date()
+        history.coords.push(...locations)
       })
 
       await stopLocationTask()
@@ -92,11 +95,20 @@ export function Arrival() {
 
     const lastSync = getLastSyncTimestamp()
     const updatedAt = history!.updated_at.getTime()
-
     setDataNotSynced(updatedAt > lastSync)
 
-    const locationsStorage = getStorageLocations()
-    setCoordinates(locationsStorage)
+    if (history?.status === 'departure') {
+      const locationsStorage = getStorageLocations()
+      setCoordinates(locationsStorage)
+    } else {
+      const coords = history?.coords.map((coord) => {
+        return {
+          latitude: coord.latitude,
+          longitude: coord.longitude,
+        }
+      })
+      setCoordinates(coords ?? [])
+    }
   }
 
   useEffect(() => {
