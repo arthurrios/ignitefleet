@@ -22,6 +22,7 @@ import { Header } from '@components/Header'
 import { Button } from '@components/Button'
 import { ButtonIcon } from '@components/ButtonIcon'
 import { getLastSyncTimestamp } from '@libs/storage/syncStorage'
+import { stopLocationTask } from '@tasks/backgroundLocationTask'
 
 type RouteParamsProps = {
   id: string
@@ -54,7 +55,7 @@ export function Arrival() {
     goBack()
   }
 
-  function handleArrivalRegister() {
+  async function handleArrivalRegister() {
     try {
       if (!history) {
         return Alert.alert(
@@ -62,6 +63,8 @@ export function Arrival() {
           `Failed fetching data to register vehicle's arrival.`,
         )
       }
+
+      await stopLocationTask()
 
       realm.write(() => {
         history.status = 'arrival'

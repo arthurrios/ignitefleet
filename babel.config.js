@@ -20,6 +20,7 @@ module.exports = function (api) {
             '@routes': './src/routes',
             '@libs': './src/libs',
             '@theme': './src/theme',
+            '@tasks': './src/tasks',
           },
         },
       ],

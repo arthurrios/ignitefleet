@@ -10,11 +10,13 @@ import {
   watchPositionAsync,
   LocationSubscription,
   LocationObjectCoords,
+  requestBackgroundPermissionsAsync,
 } from 'expo-location'
 
 import { useUser } from '@realm/react'
 import { useRealm } from '@libs/realm'
 import { History } from '@libs/realm/schemas/History'
+import { startLocationTask } from '@tasks/backgroundLocationTask'
 
 import { Header } from '@components/Header'
 import { LicensePlateInput } from '@components/LicensePlateInput'
@@ -47,7 +49,7 @@ export function Departure() {
   const descriptionRef = useRef<TextInput>(null)
   const licensePlateRef = useRef<TextInput>(null)
 
-  function handleDepartureRegister() {
+  async function handleDepartureRegister() {
     try {
       if (!licensePlateValidate(licensePlate)) {
         licensePlateRef.current?.focus()
@@ -73,6 +75,19 @@ export function Departure() {
       }
 
       setIsRegistering(true)
+
+      const backgroundPermissions = await requestBackgroundPermissionsAsync()
+
+      if (!backgroundPermissions.granted) {
+        setIsRegistering(false)
+
+        return Alert.alert(
+          'Location',
+          'The app needs access to location in background. Go to device settings and enable "Allow all the time".',
+        )
+      }
+
+      await startLocationTask()
 
       realm.write(() => {
         realm.create(

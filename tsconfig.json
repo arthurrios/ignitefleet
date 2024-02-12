@@ -39,6 +39,9 @@
       ],
       "@theme/*": [
         "./src/theme/*"
+      ],
+      "@tasks/*": [
+        "./src/tasks/*"
       ]
     }
   }
