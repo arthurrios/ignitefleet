@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { saveStorageLocation } from '@libs/storage/locationStorage'
 import {
   Accuracy,
   hasStartedLocationUpdatesAsync,
@@ -14,17 +15,21 @@ TaskManager.defineTask(BACKGROUND_TASK_NAME, ({ data, error }: any) => {
     if (error) {
       throw error
     }
-    const { coords, timestamp } = data.locations[0]
 
-    const currentLocation = {
-      latitude: coords.latitude,
-      longitude: coords.longitude,
-      timestamp,
+    if (data) {
+      const { coords, timestamp } = data.locations[0]
+
+      const currentLocation = {
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        timestamp,
+      }
+
+      saveStorageLocation(currentLocation)
     }
-
-    console.log(currentLocation)
   } catch (error) {
     console.log(error)
+    stopLocationTask()
   }
 })
 
