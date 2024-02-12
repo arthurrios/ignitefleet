@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Alert, TextInput } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { Car } from 'phosphor-react-native'
 import { useNavigation } from '@react-navigation/native'
 import {
   LocationAccuracy,
@@ -20,11 +21,16 @@ import { Button } from '@components/Button'
 
 import { Container, Content, Message } from './styles'
 import { licensePlateValidate } from '@utils/licensePlateValidate'
+import { getAddressLocation } from '@utils/getAddressLocation'
+import { Loading } from '@components/Loading'
+import { LocationInfo } from '@components/LocationInfo'
 
 export function Departure() {
   const [description, setDescription] = useState('')
   const [licensePlate, setLicensePlate] = useState('')
   const [isRegistering, setIsRegistering] = useState(false)
+  const [isLoadingLocation, setIsLoadingLocation] = useState(true)
+  const [currentAddress, setCurrentAddress] = useState<string | null>(null)
 
   const [locationForegroundPermission, requestLocationForegroundPermission] =
     useForegroundPermissions()
@@ -93,11 +99,21 @@ export function Departure() {
         timeInterval: 1000,
       },
       (location) => {
-        console.log(location)
+        getAddressLocation(location.coords)
+          .then((address) => {
+            if (address) {
+              setCurrentAddress(address)
+            }
+          })
+          .finally(() => setIsLoadingLocation(false))
       },
     ).then((response) => (subscription = response))
 
-    return () => subscription.remove()
+    return () => {
+      if (subscription) {
+        subscription.remove()
+      }
+    }
   }, [!locationForegroundPermission?.granted])
 
   if (!locationForegroundPermission?.granted) {
@@ -112,6 +128,10 @@ export function Departure() {
     )
   }
 
+  if (isLoadingLocation) {
+    return <Loading />
+  }
+
   return (
     <Container>
       <Header title="Departure" />
@@ -121,6 +141,14 @@ export function Departure() {
         extraHeight={100}
       >
         <Content>
+          {currentAddress && (
+            <LocationInfo
+              label="Current location"
+              description={currentAddress}
+              icon={Car}
+            />
+          )}
+
           <LicensePlateInput
             ref={licensePlateRef}
             label="Vehicle Plate"
