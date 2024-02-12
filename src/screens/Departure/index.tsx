@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState } from 'react'
 import { Alert, TextInput } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
@@ -8,6 +9,7 @@ import {
   useForegroundPermissions,
   watchPositionAsync,
   LocationSubscription,
+  LocationObjectCoords,
 } from 'expo-location'
 
 import { useUser } from '@realm/react'
@@ -24,6 +26,7 @@ import { licensePlateValidate } from '@utils/licensePlateValidate'
 import { getAddressLocation } from '@utils/getAddressLocation'
 import { Loading } from '@components/Loading'
 import { LocationInfo } from '@components/LocationInfo'
+import { Map } from '@components/Map'
 
 export function Departure() {
   const [description, setDescription] = useState('')
@@ -31,6 +34,8 @@ export function Departure() {
   const [isRegistering, setIsRegistering] = useState(false)
   const [isLoadingLocation, setIsLoadingLocation] = useState(true)
   const [currentAddress, setCurrentAddress] = useState<string | null>(null)
+  const [currentCoords, setCurrentCoords] =
+    useState<LocationObjectCoords | null>(null)
 
   const [locationForegroundPermission, requestLocationForegroundPermission] =
     useForegroundPermissions()
@@ -99,6 +104,8 @@ export function Departure() {
         timeInterval: 1000,
       },
       (location) => {
+        setCurrentCoords(location.coords)
+
         getAddressLocation(location.coords)
           .then((address) => {
             if (address) {
@@ -140,6 +147,14 @@ export function Departure() {
         showsVerticalScrollIndicator={false}
         extraHeight={100}
       >
+        {currentCoords && (
+          <Map
+            coordinates={[
+              { latitude: -23.5657, longitude: -46.6515 },
+              { latitude: -23.5694, longitude: -46.6467 },
+            ]}
+          />
+        )}
         <Content>
           {currentAddress && (
             <LocationInfo
