@@ -1,7 +1,13 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Alert, TextInput } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useNavigation } from '@react-navigation/native'
+import {
+  LocationAccuracy,
+  useForegroundPermissions,
+  watchPositionAsync,
+  LocationSubscription,
+} from 'expo-location'
 
 import { useUser } from '@realm/react'
 import { useRealm } from '@libs/realm'
@@ -12,13 +18,16 @@ import { LicensePlateInput } from '@components/LicensePlateInput'
 import { TextAreaInput } from '@components/TextAreaInput'
 import { Button } from '@components/Button'
 
-import { Container, Content } from './styles'
+import { Container, Content, Message } from './styles'
 import { licensePlateValidate } from '@utils/licensePlateValidate'
 
 export function Departure() {
   const [description, setDescription] = useState('')
   const [licensePlate, setLicensePlate] = useState('')
   const [isRegistering, setIsRegistering] = useState(false)
+
+  const [locationForegroundPermission, requestLocationForegroundPermission] =
+    useForegroundPermissions()
 
   const { goBack } = useNavigation()
   const realm = useRealm()
@@ -65,6 +74,42 @@ export function Departure() {
       Alert.alert('Error', 'Failed to register vehicle departure.')
       setIsRegistering(false)
     }
+  }
+
+  useEffect(() => {
+    requestLocationForegroundPermission()
+  }, [])
+
+  useEffect(() => {
+    if (!locationForegroundPermission?.granted) {
+      return
+    }
+
+    let subscription: LocationSubscription
+
+    watchPositionAsync(
+      {
+        accuracy: LocationAccuracy.Highest,
+        timeInterval: 1000,
+      },
+      (location) => {
+        console.log(location)
+      },
+    ).then((response) => (subscription = response))
+
+    return () => subscription.remove()
+  }, [!locationForegroundPermission?.granted])
+
+  if (!locationForegroundPermission?.granted) {
+    return (
+      <Container>
+        <Header title="Departure" />
+        <Message>
+          You need to allow the app to access your location to use this feature.
+          Please go to your device settings to grant this permission to the app.
+        </Message>
+      </Container>
+    )
   }
 
   return (
