@@ -17,13 +17,14 @@ import { useUser } from '@realm/react'
 import { useRealm } from '@libs/realm'
 import { History } from '@libs/realm/schemas/History'
 import { startLocationTask } from '@tasks/backgroundLocationTask'
+import { openSettings } from '@utils/openSettings'
 
 import { Header } from '@components/Header'
 import { LicensePlateInput } from '@components/LicensePlateInput'
 import { TextAreaInput } from '@components/TextAreaInput'
 import { Button } from '@components/Button'
 
-import { Container, Content, Message } from './styles'
+import { Container, Content, Message, MessageContent } from './styles'
 import { licensePlateValidate } from '@utils/licensePlateValidate'
 import { getAddressLocation } from '@utils/getAddressLocation'
 import { Loading } from '@components/Loading'
@@ -84,6 +85,7 @@ export function Departure() {
         return Alert.alert(
           'Location',
           'The app needs access to location in background. Go to device settings and enable "Allow all the time".',
+          [{ text: 'Open settings', onPress: openSettings }],
         )
       }
 
@@ -156,10 +158,16 @@ export function Departure() {
     return (
       <Container>
         <Header title="Departure" />
-        <Message>
-          You need to allow the app to access your location to use this feature.
-          Please go to your device settings to grant this permission to the app.
-        </Message>
+
+        <MessageContent>
+          <Message>
+            You need to allow the app to access your location to use this
+            feature. Please go to your device settings to grant this permission
+            to the app.
+          </Message>
+
+          <Button title="Open Settings" onPress={openSettings} />
+        </MessageContent>
       </Container>
     )
   }
