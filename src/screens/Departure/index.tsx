@@ -65,6 +65,13 @@ export function Departure() {
         )
       }
 
+      if (!currentCoords?.latitude && !currentCoords?.longitude) {
+        return Alert.alert(
+          'Location',
+          'Failed to fetch current location. Try again!',
+        )
+      }
+
       setIsRegistering(true)
 
       realm.write(() => {
